@@ -7,11 +7,11 @@ const authMiddleware = require('../middleware/authMiddleware');
 router.post('/', authMiddleware, (req, res) => {
   if (req.user.ruolo !== 'admin') return res.status(403).json({ message: 'Accesso negato' });
 
-  const { titolo, descrizione, tecnologie, link_repo, link_demo } = req.body;
+  const { titolo, descrizione, tecnologie, link_repo, img } = req.body;
   if (!titolo || !descrizione) return res.status(400).json({ message: 'Titolo e descrizione obbligatori' });
 
-  const query = `INSERT INTO progetti (titolo, descrizione, tecnologie, link_repo, link_demo) VALUES (?, ?, ?, ?, ?)`;
-  db.query(query, [titolo, descrizione, tecnologie, link_repo, link_demo], (err, result) => {
+  const query = `INSERT INTO progetti (titolo, descrizione, tecnologie, link_repo, img) VALUES (?, ?, ?, ?, ?)`;
+  db.query(query, [titolo, descrizione, tecnologie, link_repo, img], (err, result) => {
     if (err) return res.status(500).json({ message: 'Errore inserimento progetto', err });
     res.status(201).json({ message: 'Progetto creato', id: result.insertId });
   });
@@ -30,11 +30,11 @@ router.put('/:id', authMiddleware, (req, res) => {
   if (req.user.ruolo !== 'admin') return res.status(403).json({ message: 'Accesso negato' });
 
   const { id } = req.params;
-  const { titolo, descrizione, tecnologie, link_repo, link_demo } = req.body;
+  const { titolo, descrizione, tecnologie, link_repo, img } = req.body;
   if (!titolo || !descrizione) return res.status(400).json({ message: 'Titolo e descrizione obbligatori' });
 
-  const query = `UPDATE progetti SET titolo = ?, descrizione = ?, tecnologie = ?, link_repo = ?, link_demo = ? WHERE id = ?`;
-  db.query(query, [titolo, descrizione, tecnologie, link_repo, link_demo, id], (err, result) => {
+  const query = `UPDATE progetti SET titolo = ?, descrizione = ?, tecnologie = ?, link_repo = ?, img = ? WHERE id = ?`;
+  db.query(query, [titolo, descrizione, tecnologie, link_repo, img, id], (err, result) => {
     if (err) return res.status(500).json({ message: 'Errore aggiornamento progetto', err });
     if (result.affectedRows === 0) return res.status(404).json({ message: 'Progetto non trovato' });
     res.json({ message: 'Progetto aggiornato' });
