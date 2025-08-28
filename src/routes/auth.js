@@ -90,10 +90,10 @@ router.post('/refresh', (req, res) => {
 
       res.cookie('accessToken', newAccessToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'Strict',
+        secure: process.env.NODE_ENV === 'production', // true in produzione
+        sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Strict', // None solo in produzione
         maxAge: 15 * 60 * 1000,
-      });
+        });
 
       res.json({ message: 'Access token rinnovato' });
     });
