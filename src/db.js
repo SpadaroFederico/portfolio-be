@@ -1,5 +1,6 @@
-// src/db.js
 const mysql = require('mysql2');
+
+console.log('DATABASE_URL:', process.env.DATABASE_URL);
 
 const connection = mysql.createConnection(process.env.DATABASE_URL);
 
