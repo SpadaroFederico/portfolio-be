@@ -13,7 +13,12 @@ const certificazioniRoutes = require('./routes/certificazioni');
 const esperienzeRoutes = require('./routes/esperienze');
 
 const app = express();
-const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || 'http://localhost:5173';
+
+// Liste di origini consentite (local e produzione)
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://portfolio-fe-production.up.railway.app'
+];
 
 // Security headers
 app.use(helmet());
@@ -22,14 +27,20 @@ app.use(helmet());
 app.use(express.json());
 app.use(cookieParser());
 
-// Trust proxy se in produzione (Heroku/Nginx) per cookie secure
+// Trust proxy se in produzione (Railway/Nginx) per cookie secure
 if (process.env.NODE_ENV === 'production') {
   app.set('trust proxy', 1);
 }
 
-// CORS: consentire cookie cross-site
+// CORS dinamico
 app.use(cors({
-  origin: FRONTEND_ORIGIN,
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error(`CORS non autorizzato per origine ${origin}`));
+    }
+  },
   credentials: true,
 }));
 
@@ -51,6 +62,14 @@ app.use('/api/auth', authRoutes);
 app.use('/api/progetti', progettiRoutes);
 app.use('/api/certificazioni', certificazioniRoutes);
 app.use('/api/esperienze', esperienzeRoutes);
+
+// Gestione errori CORS
+app.use((err, req, res, next) => {
+  if (err.message && err.message.startsWith('CORS')) {
+    return res.status(403).json({ error: err.message });
+  }
+  next(err);
+});
 
 // Avvio server
 const PORT = process.env.PORT || 3000;
