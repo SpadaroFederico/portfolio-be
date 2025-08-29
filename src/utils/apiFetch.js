@@ -2,9 +2,16 @@ const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 export const apiFetch = async (url, options = {}) => {
   try {
-    let res = await fetch(`${BASE_URL}${url}`, { ...options, credentials: 'include' });
+    // Definisci gli endpoint pubblici che NON richiedono credenziali né refresh token
+    const publicEndpoints = ['/api/contact'];
+    const isPublic = publicEndpoints.some(ep => url.startsWith(ep));
 
-    if (res.status === 401) {
+    let res = await fetch(`${BASE_URL}${url}`, {
+      ...options,
+      credentials: isPublic ? 'omit' : 'include',
+    });
+
+    if (!isPublic && res.status === 401) {
       // Tentativo refresh token
       const refresh = await fetch(`${BASE_URL}/auth/refresh`, {
         method: 'POST',
