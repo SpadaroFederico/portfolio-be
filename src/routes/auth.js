@@ -93,7 +93,6 @@ router.post('/refresh', (req, res) => {
         maxAge: 15 * 60 * 1000,
      });
 
-
       res.json({ message: 'Access token rinnovato' });
     });
   });
