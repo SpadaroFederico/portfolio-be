@@ -4,7 +4,7 @@ const router = express.Router();
 const nodemailer = require('nodemailer');
 require('dotenv').config();
 
-// Middleware di log
+// Middleware di debug per vedere richieste POST
 router.use((req, res, next) => {
   if (req.method === 'POST') {
     console.log('--- RICHIESTA CONTACT ---');
@@ -19,6 +19,7 @@ router.use((req, res, next) => {
 router.post('/', async (req, res) => {
   const { nome, email, messaggio } = req.body;
 
+  // Validazione base
   if (!nome || !email || !messaggio) {
     return res.status(400).json({ msg: "Compila tutti i campi" });
   }
