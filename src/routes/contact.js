@@ -22,7 +22,7 @@ router.post('/', async (req, res) => {
   try {
     const msg = {
       to: process.env.CONTACT_EMAIL, // destinatario
-      from: 'federicospadaro2@verifieddomain.com', // mittente verificato su SendGrid
+      from: 'federicospadaro2@gmail.com', // mittente verificato su SendGrid
       subject: `Nuovo messaggio da ${nome}`,
       text: `${messaggio}\n\nDa: ${email}`,
       replyTo: email,
