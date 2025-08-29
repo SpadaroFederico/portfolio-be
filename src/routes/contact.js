@@ -19,15 +19,16 @@ router.post('/', async (req, res) => {
   try {
     const transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
-      port: process.env.SMTP_PORT,
-      secure: process.env.SMTP_SECURE === "true",
+      port: 587,               // Cambiato da 465 a 587
+      secure: false,           // Cambiato da true a false
       auth: {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
       },
-      connectionTimeout: 10000, // 10 secondi
+      connectionTimeout: 10000,
       greetingTimeout: 10000,
     });
+
 
     console.log('Tentativo invio email tramite SMTP...');
 
