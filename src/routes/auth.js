@@ -59,13 +59,11 @@ router.post('/login', (req, res) => {
       const cookieOptions = {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'Strict',
-      };
+        sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Strict',
+        };
 
-      // Access token short-lived
-      res.cookie('accessToken', accessToken, { ...cookieOptions, maxAge: 15 * 60 * 1000 });
-      // Refresh token long-lived
-      res.cookie('refreshToken', refreshToken, { ...cookieOptions, maxAge: 7 * 24 * 60 * 60 * 1000 });
+        res.cookie('accessToken', accessToken, { ...cookieOptions, maxAge: 15 * 60 * 1000 });
+        res.cookie('refreshToken', refreshToken, { ...cookieOptions, maxAge: 7 * 24 * 60 * 60 * 1000 });
 
       res.json({ message: 'Login effettuato' });
     });
@@ -90,10 +88,11 @@ router.post('/refresh', (req, res) => {
 
       res.cookie('accessToken', newAccessToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production', // true in produzione
-        sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Strict', // None solo in produzione
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Strict',
         maxAge: 15 * 60 * 1000,
-        });
+     });
+
 
       res.json({ message: 'Access token rinnovato' });
     });
