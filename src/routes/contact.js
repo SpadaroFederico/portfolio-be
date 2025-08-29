@@ -1,3 +1,4 @@
+// routes/contact.js
 const express = require('express');
 const router = express.Router();
 const nodemailer = require('nodemailer');
@@ -6,7 +7,6 @@ require('dotenv').config();
 router.post('/', async (req, res) => {
   console.log('--- RICHIESTA CONTACT ---');
   console.log('Headers:', req.headers);
-  console.log('Cookies:', req.cookies);
   console.log('Body:', req.body);
   console.log('-------------------------');
 
@@ -25,7 +25,11 @@ router.post('/', async (req, res) => {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
       },
+      connectionTimeout: 10000, // 10 secondi
+      greetingTimeout: 10000,
     });
+
+    console.log('Tentativo invio email tramite SMTP...');
 
     const mailOptions = {
       from: `"Portfolio Contact" <${process.env.SMTP_USER}>`,
@@ -35,11 +39,16 @@ router.post('/', async (req, res) => {
       replyTo: email,
     };
 
-    await transporter.sendMail(mailOptions);
-    res.json({ msg: "Messaggio inviato con successo!" });
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Risultato invio:', info);
+
+    return res.json({ msg: "Messaggio inviato con successo!" });
   } catch (err) {
     console.error('❌ ERRORE INVIO EMAIL:', err);
-    res.status(500).json({ msg: "Errore nell'invio dell'email" });
+    return res.status(500).json({
+      msg: "Errore nell'invio dell'email",
+      error: err.message
+    });
   }
 });
 
