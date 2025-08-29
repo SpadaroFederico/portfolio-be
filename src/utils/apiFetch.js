@@ -1,27 +1,50 @@
+// utils/apiFetch.js
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
-export const apiFetch = async (url, options = {}) => {
+/**
+ * apiFetch gestisce fetch con JWT, refresh token e gestione errori.
+ * - url: endpoint relativo al BASE_URL
+ * - options: { method, headers, body, etc. }
+ * - includeCredentials: true se endpoint protetto
+ */
+export const apiFetch = async (url, options = {}, includeCredentials = true) => {
   try {
-    const noCredentials = ['/contact'];
-    const sendCredentials = !noCredentials.some(ep => url.startsWith(ep));
+    const headers = { 'Content-Type': 'application/json', ...(options.headers || {}) };
 
+    // Invia JWT se presente nel localStorage
+    const accessToken = localStorage.getItem('accessToken');
+    if (accessToken && includeCredentials) {
+      headers['Authorization'] = `Bearer ${accessToken}`;
+    }
+
+    // Chiamata principale
     let res = await fetch(`${BASE_URL}${url}`, {
       ...options,
-      credentials: sendCredentials ? 'include' : 'omit',
-      headers: { 'Content-Type': 'application/json', ...(options.headers || {}) }
+      headers,
+      credentials: includeCredentials ? 'include' : 'omit',
     });
 
-    // refresh token solo per endpoint autenticati
-    if (res.status === 401 && sendCredentials) {
-      const refresh = await fetch(`${BASE_URL}/auth/refresh`, {
+    // Gestione 401 → refresh token solo se endpoint protetto
+    if (res.status === 401 && includeCredentials) {
+      const refreshRes = await fetch(`${BASE_URL}/auth/refresh`, {
         method: 'POST',
-        credentials: 'include'
+        credentials: 'include',
       });
 
-      if (refresh.ok) {
-        res = await fetch(`${BASE_URL}${url}`, { ...options, credentials: 'include' });
+      if (refreshRes.ok) {
+        const data = await refreshRes.json();
+        localStorage.setItem('accessToken', data.accessToken);
+
+        // Retry della richiesta originale con nuovo token
+        headers['Authorization'] = `Bearer ${data.accessToken}`;
+        res = await fetch(`${BASE_URL}${url}`, {
+          ...options,
+          headers,
+          credentials: 'include',
+        });
       } else {
-        window.location.href = '/login';
+        // Logout se refresh fallisce
+        localStorage.removeItem('accessToken');
         return { ok: false, status: 401, data: { msg: 'Non autorizzato' } };
       }
     }
