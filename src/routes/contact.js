@@ -8,11 +8,6 @@ require('dotenv').config();
 sgMail.setApiKey(process.env.CONTACT_API);
 
 router.post('/', async (req, res) => {
-  console.log('--- RICHIESTA CONTACT ---');
-  console.log('Headers:', req.headers);
-  console.log('Body:', req.body);
-  console.log('-------------------------');
-
   const { nome, email, messaggio } = req.body;
 
   if (!nome || !email || !messaggio) {
@@ -28,11 +23,9 @@ router.post('/', async (req, res) => {
       replyTo: email,
     };
 
-    const info = await sgMail.send(msg);
-    console.log('📧 Email inviata:', info);
+    await sgMail.send(msg);
     res.json({ msg: "Messaggio inviato con successo!" });
   } catch (err) {
-    console.error('❌ ERRORE INVIO EMAIL:', err);
     res.status(500).json({ msg: "Errore nell'invio dell'email", error: err.message });
   }
 });
