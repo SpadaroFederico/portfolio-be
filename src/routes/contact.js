@@ -4,6 +4,18 @@ const router = express.Router();
 const nodemailer = require('nodemailer');
 require('dotenv').config();
 
+// Middleware di log
+router.use((req, res, next) => {
+  if (req.method === 'POST') {
+    console.log('--- RICHIESTA CONTACT ---');
+    console.log('Headers:', req.headers);
+    console.log('Cookies:', req.cookies);
+    console.log('Body:', req.body);
+    console.log('-------------------------');
+  }
+  next();
+});
+
 router.post('/', async (req, res) => {
   const { nome, email, messaggio } = req.body;
 
@@ -22,27 +34,18 @@ router.post('/', async (req, res) => {
       },
     });
 
-    router.post('/', (req, res, next) => {
-      console.log('--- RICHIESTA CONTACT ---');
-      console.log('Headers:', req.headers);
-      console.log('Cookies:', req.cookies);
-      console.log('Body:', req.body);
-      console.log('-------------------------');
-      next(); // passa al middleware effettivo per inviare email
-    });
-
     const mailOptions = {
-        from: `"Portfolio Contact" <${process.env.SMTP_USER}>`, // mittente obbligatorio
-        to: process.env.CONTACT_EMAIL, // destinatario
-        subject: `Nuovo messaggio da ${nome}`,
-        text: `${messaggio}\n\nDa: ${email}`, // includi la mail dell'utente
-        replyTo: email, // questo permette di cliccare "Rispondi" e mandare direttamente all'utente
+      from: `"Portfolio Contact" <${process.env.SMTP_USER}>`,
+      to: process.env.CONTACT_EMAIL,
+      subject: `Nuovo messaggio da ${nome}`,
+      text: `${messaggio}\n\nDa: ${email}`,
+      replyTo: email,
     };
 
     await transporter.sendMail(mailOptions);
     res.json({ msg: "Messaggio inviato con successo!" });
   } catch (err) {
-    console.error(err);
+    console.error('Errore invio email:', err);
     res.status(500).json({ msg: "Errore nell'invio dell'email" });
   }
 });
