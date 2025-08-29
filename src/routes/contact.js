@@ -22,6 +22,15 @@ router.post('/', async (req, res) => {
       },
     });
 
+    router.post('/', (req, res, next) => {
+      console.log('--- RICHIESTA CONTACT ---');
+      console.log('Headers:', req.headers);
+      console.log('Cookies:', req.cookies);
+      console.log('Body:', req.body);
+      console.log('-------------------------');
+      next(); // passa al middleware effettivo per inviare email
+    });
+
     const mailOptions = {
         from: `"Portfolio Contact" <${process.env.SMTP_USER}>`, // mittente obbligatorio
         to: process.env.CONTACT_EMAIL, // destinatario
