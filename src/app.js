@@ -17,7 +17,8 @@ const app = express();
 // Liste di origini consentite (local e produzione)
 const allowedOrigins = [
   'http://localhost:5173',
-  'https://portfolio-fe-production.up.railway.app'
+  'https://portfolio-fe-production.up.railway.app',
+  'https://federicospadarodev.up.railway.app'
 ];
 
 // Security headers
