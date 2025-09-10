@@ -21,6 +21,8 @@ const allowedOrigins = [
   'https://federicospadarodev.up.railway.app'
 ];
 
+const healthRouter = require('./routes/health');
+
 // Security headers
 app.use(helmet());
 
@@ -63,6 +65,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/progetti', progettiRoutes);
 app.use('/api/certificazioni', certificazioniRoutes);
 app.use('/api/esperienze', esperienzeRoutes);
+app.use('/health', healthRouter);
 
 // Gestione errori CORS
 app.use((err, req, res, next) => {
