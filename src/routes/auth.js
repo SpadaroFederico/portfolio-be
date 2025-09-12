@@ -60,10 +60,10 @@ router.post('/login', (req, res) => {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Strict',
-        };
+      };
 
-        res.cookie('accessToken', accessToken, { ...cookieOptions, maxAge: 15 * 60 * 1000 });
-        res.cookie('refreshToken', refreshToken, { ...cookieOptions, maxAge: 7 * 24 * 60 * 60 * 1000 });
+      res.cookie('accessToken', accessToken, { ...cookieOptions, maxAge: 15 * 60 * 1000 });
+      res.cookie('refreshToken', refreshToken, { ...cookieOptions, maxAge: 7 * 24 * 60 * 60 * 1000 });
 
       res.json({ message: 'Login effettuato' });
     });
@@ -91,7 +91,7 @@ router.post('/refresh', (req, res) => {
         secure: process.env.NODE_ENV === 'production',
         sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Strict',
         maxAge: 15 * 60 * 1000,
-     });
+      });
 
       res.json({ message: 'Access token rinnovato' });
     });
@@ -119,6 +119,24 @@ router.get('/protected-check', (req, res) => {
   jwt.verify(token, process.env.JWT_SECRET, (err) => {
     if (err) return res.status(403).json({ message: 'Token non valido o scaduto' });
     res.json({ message: 'Autenticato' });
+  });
+});
+
+/* ------------------ STATUS (nuovo) ------------------ */
+router.get('/status', (req, res) => {
+  const token = req.cookies?.accessToken;
+  if (!token) {
+    return res.json({ loggedIn: false });
+  }
+
+  jwt.verify(token, process.env.JWT_SECRET, (err, payload) => {
+    if (err) {
+      return res.json({ loggedIn: false });
+    }
+    res.json({
+      loggedIn: true,
+      user: { id: payload.id, ruolo: payload.ruolo },
+    });
   });
 });
 
